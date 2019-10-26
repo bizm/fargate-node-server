@@ -1,16 +1,19 @@
 --- 
-phases: 
+phases:
+  install:
+    runtime-versions:
+      docker: 18 
   build: 
     commands: 
       - "echo Build started on `date`"
       - "echo Building the Docker image..."
-      - "docker build -t dvohra/node-server ."
-      - "docker tag dvohra/node-server dvohra/node-server:latest"
+      - "docker build -t bizm/node-server ."
+      - "docker tag bizm/node-server bizm/node-server:latest"
   post_build: 
     commands: 
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
-      - "docker push dvohra/node-server:latest"
+      - "docker push bizm/node-server:latest"
   pre_build: 
     commands: 
       - "echo Logging in to Docker Hub..."
