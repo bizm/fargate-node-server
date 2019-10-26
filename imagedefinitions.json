@@ -1,6 +1,6 @@
 [
     {
-        "name": "node-server",
+        "name": "node",
         "imageUri": "bizm/node-server"
     }
 ]
