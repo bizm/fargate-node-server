@@ -1,0 +1,34 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Cloudformation test for node-server demo app"
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: node-server-cluster
+      Tags:
+        - Key: Name
+          Value: Node server test cluster
+
+  NodeTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      # ...
+      ContainerDefinitions: []
+      Cpu: 256
+      ExecutionRoleArn: arn:aws:iam::115162817961:role/ecsTaskExecutionRole
+      Family: node-server
+      # IpcMode: null
+      Memory: 512
+      NetworkMode: awsvpc
+      # PidMode: null
+      PlacementConstraints: []
+      # ProxyConfiguration: null
+      RequiresCompatibilities:
+        - FARGATE
+      Tags:
+        - Key: Name
+          Value: Node server test task definition
+      TaskRoleArn: arn:aws:iam::115162817961:role/ecsTaskExecutionRole
+      Volumes: []

@@ -1,0 +1,12 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Cloudformation test for node-server demo app"
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: node-server
+      Tags:
+        - Key: Name
+          Value: Node server test cluster
