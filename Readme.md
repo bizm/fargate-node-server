@@ -3,7 +3,7 @@ Inspired by article https://www.infoq.com/articles/aws-codepipeline-deploy-docke
 
 Assumptions are:
 ... | Value
------------
+--- | ------
 Task defition file | taskdef.json
 Task family name | node-server
 CloudFormation stack name | node-server
