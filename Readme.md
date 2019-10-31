@@ -20,18 +20,21 @@ aws ecs deregister-task-definition --task-definition <family>:<revision>
 All the required resources should be created by CloudFormation via `aws cloudformation` command. CloudFormation templates are YAML files starting with `cf-` preffix.
 
 ```shell
-# List currently existing stacks
+# list currently existing stacks
 aws cloudformation list-stacks
 
-# Validate cloudformation template
+# validate cloudformation template
 aws cloudformation validate-template --template-body file://<template-file>
 
-# Create new stack
+# create new stack
 aws cloudformation create-stack --stack-name node-server --template-body file://<template-file> --parameters file://<parameters-file>
 
-# Update existing stack
+# update existing stack
 aws cloudformation update-stack --stack-name node-server --template-body file://<template-file> --parameters file://<parameters-file>
 
-# Delete stack
+# describe stack events
+aws cloudformation describe-stack-events --stack-name <stack-name> --max-items <max-number-of-events>
+
+# delete stack
 aws cloudformation delete-stack --stack-name sora-api-vpc-dev
 ```

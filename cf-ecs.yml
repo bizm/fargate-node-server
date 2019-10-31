@@ -13,4 +13,20 @@ Resources:
 
   # task definition is created separately via 'aws ecs'
   
-  
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: node-server-service
+      Cluster: node-server-cluster
+      TaskDefinition: node-server
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+          - sg-c85ce6a9
+          Subnets:
+          - subnet-4291ad0f
+          - subnet-2a01f340
+          - subnet-b26a42cf
