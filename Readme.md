@@ -7,14 +7,11 @@ Inspired by article https://www.infoq.com/articles/aws-codepipeline-deploy-docke
 
 Task is defined in JSON template that is not used by CloudFormation. Reason is that this json file is required for CodePipeline. Thus task must be created before executing resource creation via CloudFormation.
 
-```
+```shell
+# create new task definition or add a new revision to existing one
 aws ecs register-task-definition --cli-input-json file://taskdef.json
-```
 
-This command will create a task definition if it doesn't exist or add a new revision to existing one.
-
-Task definition revisions can be removed by
-```
+# remove task definition
 aws ecs deregister-task-definition --task-definition <family>:<revision>
 ```
 
