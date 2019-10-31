@@ -1,6 +1,5 @@
 # General information
-https://www.infoq.com/articles/aws-codepipeline-deploy-docker/
-forked from https://github.com/dvohra/docker-node-server
+Inspired by article https://www.infoq.com/articles/aws-codepipeline-deploy-docker/. Repository is forked from https://github.com/dvohra/docker-node-server.
 
 # AWS CLI
 
@@ -23,7 +22,7 @@ aws ecs deregister-task-definition --task-definition <family>:<revision>
 
 All the required resources should be created by CloudFormation via `aws cloudformation` command. CloudFormation templates are YAML files starting with `cf-` preffix.
 
-```
+```shell
 # List currently existing stacks
 aws cloudformation list-stacks
 
