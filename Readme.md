@@ -2,8 +2,9 @@
 Inspired by article https://www.infoq.com/articles/aws-codepipeline-deploy-docker/. Repository is forked from https://github.com/dvohra/docker-node-server.
 
 Assumptions are:
-... | Value
---- | ------
+
+Description | Value
+----------- | ------
 Task defition file | taskdef.json
 Task family name | node-server
 CloudFormation stack name | node-server
