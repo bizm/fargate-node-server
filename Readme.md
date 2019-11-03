@@ -5,7 +5,7 @@ Assumptions are:
 
 Description | Value
 ----------- | ------
-Task defition file | taskdef.json
+Task definition file | taskdef.json
 Task family name | node-server
 CloudFormation stack name | node-server
 CloudFormation template | cf-ecs.yml
