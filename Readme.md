@@ -10,6 +10,14 @@ Task family name | node-server
 CloudFormation stack name | node-server
 CloudFormation template | cf-ecs.yml
 
+# Docker image
+
+```shell
+docker build --rm -t bizm/node-server .
+docker run -it --rm -p 127.0.0.1:8080:8080 bizm/node-server:latest
+docker push bizm/node-server:latest
+```
+
 # AWS CLI
 
 ## Task definition
@@ -47,3 +55,8 @@ aws cloudformation describe-stack-events --stack-name node-server --max-items <m
 # delete stack
 aws cloudformation delete-stack --stack-name node-server
 ```
+
+## Container metadata
+
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-metadata.html
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v3.html

@@ -1,0 +1,24 @@
+{
+  "name": "aws.fargate-node-server",
+  "version": "1.0.0",
+  "description": "Inspired by article https://www.infoq.com/articles/aws-codepipeline-deploy-docker/. Repository is forked from https://github.com/dvohra/docker-node-server.",
+  "main": "server.js",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bizm/fargate-node-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bizm/fargate-node-server/issues"
+  },
+  "homepage": "https://github.com/bizm/fargate-node-server#readme"
+}
