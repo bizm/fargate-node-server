@@ -22,5 +22,7 @@ phases:
     commands:
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
+      - echo $AWS_ACCOUNT_ID
+      - echo $AWS_REGION
       # - "docker push bizm/node-server:latest"
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
