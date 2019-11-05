@@ -88,6 +88,9 @@ https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoi
 We start here
 https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codebuild-project.html
 
+Some awesome shit!
+https://stelligent.com/2017/03/09/using-parameter-store-with-aws-codepipeline/
+
 # Code pipeline
 
 General info
