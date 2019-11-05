@@ -2,7 +2,7 @@
 version: 0.2
 env:
   variables:
-    DOCKER_IMAGE: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
+    DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/test/node-server:latest"
 phases:
   install:
     runtime-versions:
