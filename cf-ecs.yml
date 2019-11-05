@@ -52,13 +52,13 @@ Resources:
           Value: Node server test cluster
 
   # task definition is created separately via 'aws ecs'
-  
+
   Service:
     Type: AWS::ECS::Service
     DependsOn: ListenerHTTP
     Properties:
       ServiceName: node-server-service
-      Cluster: node-server-cluster
+      Cluster: !Ref Cluster
       TaskDefinition: !Join
         - ''
         - - 'arn:aws:ecs:'

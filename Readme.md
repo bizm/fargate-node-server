@@ -56,7 +56,40 @@ aws cloudformation describe-stack-events --stack-name node-server --max-items <m
 aws cloudformation delete-stack --stack-name node-server
 ```
 
-## Container metadata
+## ECS
+
+```shell
+# list clusters
+aws ecs list-clusters
+# scale service up/down
+aws ecs update-service --cluster <cluster-arn> --service node-server-service --desired-count <desired-count>
+aws ecs update-service --cluster node-server-cluster --service node-server-service --desired-count <desired-count>
+```
+
+# ECS CLI
+
+```shell
+# configure ecs-cli
+ecs-cli configure --region eu-central-1 --cluster node-server-cluster --config-name node-server
+# list containers
+ecs-cli ps --cluster-config node-server
+# get task logs
+ecs-cli logs --task-id <task-id> --follow --cluster-config node-server
+```
+
+# Container metadata
 
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-metadata.html
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v3.html
+
+# Etc
+
+https://stackoverflow.com/questions/48006598/how-fast-can-ecs-fargate-boot-a-container?rq=1
+--
+ECS workshop
+https://ecsworkshop.com/
+https://github.com/brentley/ecsdemo-frontend
+https://github.com/brentley/ecsdemo-nodejs
+https://github.com/brentley/ecsdemo-crystal
+https://github.com/brentley/container-demo
+--
