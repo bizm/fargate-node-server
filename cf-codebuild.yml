@@ -3,8 +3,14 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "Test CloudFormation template for CodeBuild"
 
 Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: node-server/codebuild-test-cf
+
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
+    DependsOn: Repository
     Properties:
       Name: node-server-codebuild-test-cf
       Artifacts:

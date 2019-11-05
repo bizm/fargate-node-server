@@ -1,4 +1,5 @@
 ---
+version: 0.2
 phases:
   install:
     runtime-versions:
@@ -7,15 +8,19 @@ phases:
       # initialize Docker daemon
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --storage-driver=overlay&
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --no-include-email --region $AWS_REGION)
   build:
     commands:
       - "echo Build started on `date`"
       - "echo Building the Docker image..."
-      - "docker build -t bizm/node-server ."
-      - "docker tag bizm/node-server bizm/node-server:latest"
+      - "docker build -t test/node-server ."
+      - "docker tag test/node-server test/node-server:latest"
   post_build:
     commands:
       - "echo Build completed on `date`"
-      # - "echo Pushing the Docker image..."
+      - "echo Pushing the Docker image..."
       # - "docker push bizm/node-server:latest"
-version: 0.2
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
