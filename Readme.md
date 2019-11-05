@@ -108,12 +108,15 @@ https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-str
 https://stackoverflow.com/questions/48006598/how-fast-can-ecs-fargate-boot-a-container?rq=1
 
 --
+
 ECS workshop
+
 https://ecsworkshop.com/
 https://github.com/brentley/ecsdemo-frontend
 https://github.com/brentley/ecsdemo-nodejs
 https://github.com/brentley/ecsdemo-crystal
 https://github.com/brentley/container-demo
+
 --
 
 https://aws.amazon.com/premiumsupport/knowledge-center/multiple-values-list-parameter-cli/
