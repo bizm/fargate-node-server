@@ -34,6 +34,6 @@ Resources:
         PrivilegedMode: true
         EnvironmentVariables:
           -
-            Name: AWS_ACCOUNT_ID
+            Name: DOCKER_IMAGE_REPO_ARN
             Type: PLAINTEXT
-            Value: !Ref "AWS::AccountId"
+            Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/test/node-server:latest"

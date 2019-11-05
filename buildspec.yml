@@ -2,7 +2,7 @@
 version: 0.2
 env:
   variables:
-    DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/test/node-server:latest"
+    DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest"
 phases:
   install:
     runtime-versions:
@@ -15,13 +15,13 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - $(aws ecr get-login --no-include-email --region $AWS_REGION)
-      - echo $DOCKER_IMAGE
+      - echo $DOCKER_IMAGE_REPO_ARN
   build:
     commands:
       - "echo Build started on `date`"
       - "echo Building the Docker image..."
       - "docker build -t test/node-server ."
-      - "docker tag test/node-server $DOCKER_IMAGE"
+      - "docker tag test/node-server $DOCKER_IMAGE_REPO_ARN"
   post_build:
     commands:
       - "echo Build completed on `date`"
@@ -30,4 +30,4 @@ phases:
       - echo $AWS_REGION
       # - "docker push bizm/node-server:latest"
       # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
-      - docker push $DOCKER_IMAGE
+      - docker push $DOCKER_IMAGE_REPO_ARN
