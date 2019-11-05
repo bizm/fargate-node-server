@@ -1,5 +1,8 @@
 ---
 version: 0.2
+env:
+  variables:
+    DOCKER_IMAGE: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
 phases:
   install:
     runtime-versions:
@@ -17,7 +20,7 @@ phases:
       - "echo Build started on `date`"
       - "echo Building the Docker image..."
       - "docker build -t test/node-server ."
-      - "docker tag test/node-server test/node-server:latest"
+      - "docker tag test/node-server $DOCKER_IMAGE"
   post_build:
     commands:
       - "echo Build completed on `date`"
@@ -25,4 +28,5 @@ phases:
       - echo $AWS_ACCOUNT_ID
       - echo $AWS_REGION
       # - "docker push bizm/node-server:latest"
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
+      # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
+      - docker push $DOCKER_IMAGE

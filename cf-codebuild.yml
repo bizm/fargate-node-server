@@ -32,3 +32,8 @@ Resources:
         # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
         Image: aws/codebuild/standard:2.0-1.13.0
         PrivilegedMode: true
+        EnvironmentVariables:
+          -
+            Name: AWS_ACCOUNT_ID
+            Type: PLAINTEXT
+            Value: !Ref "AWS::AccountId"
