@@ -30,4 +30,4 @@ phases:
       - echo $AWS_REGION
       # - "docker push bizm/node-server:latest"
       # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
-      - docker push $DOCKER_IMAGE_REPO_ARN
+      - "docker push $DOCKER_IMAGE_REPO_ARN"
