@@ -3,6 +3,10 @@ phases:
   install:
     runtime-versions:
       docker: 18
+    commands:
+      # initialize Docker daemon
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --storage-driver=overlay&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
   build:
     commands:
       - "echo Build started on `date`"
