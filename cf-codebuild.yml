@@ -36,4 +36,8 @@ Resources:
           -
             Name: DOCKER_IMAGE_REPO_ARN
             Type: PLAINTEXT
-            Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/test/node-server:latest"
+            Value: !Sub
+              - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
+              # - "${RepositoryArn}:latest"
+              - { RepositoryName: !Ref Repository }
+              #- { RepositoryArn: !GetAtt Repository.Arn }
