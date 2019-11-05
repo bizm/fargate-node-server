@@ -9,6 +9,7 @@ Task definition file | taskdef.json
 Task family name | node-server
 CloudFormation stack name | node-server
 CloudFormation template | cf-ecs.yml
+CloudFormation parameters | cf-ecs-parameters.json
 
 # Docker image
 
@@ -44,10 +45,10 @@ aws cloudformation list-stacks
 aws cloudformation validate-template --template-body file://cf-ecs.yml
 
 # create new stack
-aws cloudformation create-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://<parameters-file>
+aws cloudformation create-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
 
 # update existing stack
-aws cloudformation update-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://<parameters-file>
+aws cloudformation update-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
 
 # describe stack events
 aws cloudformation describe-stack-events --stack-name node-server --max-items <max-number-of-events>
@@ -82,9 +83,27 @@ ecs-cli logs --task-id <task-id> --follow --cluster-config node-server
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-metadata.html
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v3.html
 
+# Code Build
+
+We start here
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codebuild-project.html
+
+# Code pipeline
+
+General info
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codepipeline-pipeline.html
+ActionDeclaration
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codepipeline-pipeline-stages-actions.html#cfn-codepipeline-pipeline-stages-actions-configuration
+More detailed info
+https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#action-requirements
+https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#structure-configuration-examples
+
 # Etc
 
+...
+
 https://stackoverflow.com/questions/48006598/how-fast-can-ecs-fargate-boot-a-container?rq=1
+
 --
 ECS workshop
 https://ecsworkshop.com/
@@ -93,3 +112,10 @@ https://github.com/brentley/ecsdemo-nodejs
 https://github.com/brentley/ecsdemo-crystal
 https://github.com/brentley/container-demo
 --
+
+https://aws.amazon.com/premiumsupport/knowledge-center/multiple-values-list-parameter-cli/
+
+https://aws.amazon.com/blogs/compute/task-networking-in-aws-fargate/
+
+CodePipeline + Secrets Manager
+https://medium.com/@eoins/securing-github-tokens-in-a-serverless-codepipeline-dc3a24ddc356

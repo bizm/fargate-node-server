@@ -2,6 +2,23 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Cloudformation test for node-server demo app"
 
+Parameters:
+  Vpc:
+    Type: AWS::EC2::VPC::Id
+  TaskDefinitionName:
+    Type: String
+  TaskDefinitionRevision:
+    Type: String
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+  Port:
+    Type: Number
+    Default: 8080
+  CodePipelineRole:
+    Type: String
+
 Resources:
 
   PublicLoadBalancer:
@@ -11,19 +28,17 @@ Resources:
       LoadBalancerAttributes:
       - Key: idle_timeout.timeout_seconds
         Value: '30'
-      Subnets:
-        - subnet-4291ad0f
-        - subnet-2a01f340
-        - subnet-b26a42cf
+      Subnets: !Ref Subnets
       SecurityGroups:
-        - sg-c85ce6a9
+        - !Ref SecurityGroup
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      VpcId: vpc-440e042f
+      VpcId:
+        Ref: Vpc
       Protocol: HTTP
-      Port: 8080
+      Port: !Ref Port
       TargetType: ip
       Name: node-server-alb
       HealthCheckIntervalSeconds: 6
@@ -39,10 +54,12 @@ Resources:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
       LoadBalancerArn: !Ref PublicLoadBalancer
-      Port: 8080
+      Port: !Ref Port
       Protocol: HTTP
 
   # somehow it always fails to delete cluster because of service being active
+  # it fails because wasn't referencing cluster, but was specifying name instead
+  # Use '!Ref' !!!
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -65,7 +82,10 @@ Resources:
           - !Ref "AWS::Region"
           - ':'
           - !Ref "AWS::AccountId"
-          - ':task-definition/node-server:7'
+          - ":task-definition/"
+          - !Ref TaskDefinitionName
+          - ":"
+          - !Ref TaskDefinitionRevision
       # task definition should be full ARN including revision, so that stack doesn't get stuck in CREATE_IN_PROGRESS state
       # https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-ecs-service-stabilize/
       # https://stackoverflow.com/questions/32727520/cloudformation-template-for-creating-ecs-service-stuck-in-create-in-progress
@@ -76,23 +96,78 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-          - sg-c85ce6a9
-          Subnets:
-          - subnet-4291ad0f
-          - subnet-2a01f340
-          - subnet-b26a42cf
+          - !Ref SecurityGroup
+          Subnets: !Ref Subnets
       # not allowed to set load balancer after service is created
       LoadBalancers:
         - ContainerName: node
-          ContainerPort: 8080
+          ContainerPort: !Ref Port
           TargetGroupArn: !Ref TargetGroup
 
   EcsSecurityGroupIngressFromPublic:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from public to node-server
-      GroupId: sg-c85ce6a9
+      GroupId: !Ref SecurityGroup
       IpProtocol: tcp
-      FromPort: 8080
-      ToPort: 8080
+      FromPort: !Ref Port
+      ToPort: !Ref Port
       CidrIp: 0.0.0.0/0
+
+  DockerBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: node-server-dockerbuild
+      Artifacts:
+        -
+          Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        Type: LINUX_CONTAINER
+
+
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: node-server-pipeline
+      RoleArn: !Join
+        - ''
+        - - "arn:aws:iam::"
+          - !Ref "AWS::AccountId"
+          - ":role/service-role/"
+          - !Ref CodePipelineRole
+      Stages:
+        -
+          Name: Source
+          Actions:
+            -
+              Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                -
+                  Name: SourceOutput
+              Configuration:
+                Owner: bizm
+                Repo: fargate-node-server
+                PollForSourceChanges: false
+                Branch: master
+                OAuthToken: "{{resolve:secretsmanager:CICD:SecretString:GitHubAccessToken}}"
+        -
+          Name: Build
+          Actions:
+            -
+              Name: DockerBuild
+              InputArtifacts:
+                -
+                  Name: SourceOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:

@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "Vpc",
+    "ParameterValue": "vpc-440e042f"
+  },
+  {
+    "ParameterKey": "TaskDefinitionName",
+    "ParameterValue": "node-server"
+  },
+  {
+    "ParameterKey": "TaskDefinitionRevision",
+    "ParameterValue": "7"
+  },
+  {
+    "ParameterKey": "Subnets",
+    "ParameterValue": "subnet-4291ad0f, subnet-2a01f340, subnet-b26a42cf"
+  },
+  {
+    "ParameterKey": "SecurityGroup",
+    "ParameterValue": "sg-c85ce6a9"
+  },
+  {
+    "ParameterKey": "CodePipelineRole",
+    "ParameterValue": "AWSCodePipelineServiceRole-eu-central-1-ecs-demo"
+  }
+]
