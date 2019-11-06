@@ -93,32 +93,29 @@ Resources:
             Effect: Deny
             Principal: '*'
             Action: 's3:*'
-            Resource: !Join
-              - ''
-              - - !GetAtt
-                  - CodePipelineArtifactStoreBucket
-                  - Arn
-                - /*
+            Resource: !Sub
+              - "${BucketArn}/*"
+              - { BucketArn: !GetAtt CodePipelineArtifactStoreBucket.Arn }
             Condition:
               Bool:
                 'aws:SecureTransport': false
-  PipelineWebhook:
-    Type: 'AWS::CodePipeline::Webhook'
-    Properties:
-      Authentication: GITHUB_HMAC
-      AuthenticationConfiguration:
-        # SecretToken: 210841621240082451323192054430426788446332695914332152869721183331433167362571732187170791249191007
-        SecretToken: nodeservercodebuildtest--Source--bizmfargatenodeserver--173080486
-      Filters:
-        - JsonPath: $.ref
-          MatchEquals: 'refs/heads/master'
-      TargetPipeline: !Ref CodePipeline
-      TargetAction: Source
-      Name: PipelineWebhook
-      TargetPipelineVersion: !GetAtt
-        - CodePipeline
-        - Version
-      RegisterWithThirdParty: true
+#   PipelineWebhook:
+#     Type: 'AWS::CodePipeline::Webhook'
+#     Properties:
+#       Authentication: GITHUB_HMAC
+#       AuthenticationConfiguration:
+#         # SecretToken: 210841621240082451323192054430426788446332695914332152869721183331433167362571732187170791249191007
+#         SecretToken: nodeservercodebuildtest--Source--bizmfargatenodeserver--173080486
+#       Filters:
+#         - JsonPath: $.ref
+#           MatchEquals: 'refs/heads/master'
+#       TargetPipeline: !Ref CodePipeline
+#       TargetAction: Source
+#       Name: PipelineWebhook
+#       TargetPipelineVersion: !GetAtt
+#         - CodePipeline
+#         - Version
+#       RegisterWithThirdParty: true
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     DependsOn:
