@@ -76,16 +76,18 @@ Resources:
     Properties:
       ServiceName: node-server-service
       Cluster: !Ref Cluster
-      TaskDefinition: !Join
-        - ''
-        - - 'arn:aws:ecs:'
-          - !Ref "AWS::Region"
-          - ':'
-          - !Ref "AWS::AccountId"
-          - ":task-definition/"
-          - !Ref TaskDefinitionName
-          - ":"
-          - !Ref TaskDefinitionRevision
+      TaskDefinition: !Sub
+        - "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition:${TaskDefinitionName}:${TaskDefinitionRevision}"
+      # TaskDefinition: !Join
+      #   - ''
+      #   - - 'arn:aws:ecs:'
+      #     - !Ref "AWS::Region"
+      #     - ':'
+      #     - !Ref "AWS::AccountId"
+      #     - ":task-definition/"
+      #     - !Ref TaskDefinitionName
+      #     - ":"
+      #     - !Ref TaskDefinitionRevision
       # task definition should be full ARN including revision, so that stack doesn't get stuck in CREATE_IN_PROGRESS state
       # https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-ecs-service-stabilize/
       # https://stackoverflow.com/questions/32727520/cloudformation-template-for-creating-ecs-service-stuck-in-create-in-progress
@@ -114,29 +116,53 @@ Resources:
       ToPort: !Ref Port
       CidrIp: 0.0.0.0/0
 
-  DockerBuild:
-    Type: AWS::CodeBuild::Project
+  Repository:
+    Type: AWS::ECR::Repository
     Properties:
-      Name: node-server-dockerbuild
+      RepositoryName: node-server/codebuild-test-cf
+
+  DockerBuildProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn: Repository
+    Properties:
+      Name: node-server-codebuild-test-cf
       Artifacts:
-        -
-          Type: CODEPIPELINE
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      SourceVersion: master
+      ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
+
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
         Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        # Ubuntu image
+        Image: aws/codebuild/standard:2.0-1.13.0
+        # privileged mode is required for building docker image
+        PrivilegedMode: true
+        EnvironmentVariables:
+          -
+            Name: DOCKER_IMAGE_REPO_ARN
+            Type: PLAINTEXT
+            Value: !Sub
+              - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
+              - { RepositoryName: !Ref Repository }
 
 
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: node-server-pipeline
-      RoleArn: !Join
-        - ''
-        - - "arn:aws:iam::"
-          - !Ref "AWS::AccountId"
-          - ":role/service-role/"
-          - !Ref CodePipelineRole
+      RoleArn: !Sub
+        - "arn:aws:iam:${AWS::AccountId}:role/service-role/${CodePipelineRole}"
+      # RoleArn: !Join
+      #   - ''
+      #   - - "arn:aws:iam::"
+      #     - !Ref "AWS::AccountId"
+      #     - ":role/service-role/"
+      #     - !Ref CodePipelineRole
       Stages:
         -
           Name: Source
@@ -165,6 +191,9 @@ Resources:
               InputArtifacts:
                 -
                   Name: SourceOutput
+              OutputArtifacts:
+                -
+                  Name: BuildOutput
               ActionTypeId:
                 Category: Build
                 Owner: AWS

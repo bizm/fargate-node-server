@@ -1,0 +1,6 @@
+[
+  {
+    "ParameterKey": "CodePipelineRole",
+    "ParameterValue": "AWSCodePipelineServiceRole-eu-central-1-ecs-demo"
+  }
+]

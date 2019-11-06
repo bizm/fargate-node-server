@@ -46,6 +46,7 @@ aws cloudformation validate-template --template-body file://cf-ecs.yml
 
 # create new stack
 aws cloudformation create-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
+aws cloudformation create-stack --stack-name node-server-pipeline --template-body file://cf-codepipeline.yml --parameters file://cf-codepipeline-parameters.json --capabilities CAPABILITY_IAM
 
 # update existing stack
 aws cloudformation update-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
@@ -55,6 +56,13 @@ aws cloudformation describe-stack-events --stack-name node-server --max-items <m
 
 # delete stack
 aws cloudformation delete-stack --stack-name node-server
+```
+
+## Fancy stuff
+
+```shell
+# List webhooks
+aws codepipeline list-webhooks --endpoint-url "https://codepipeline.eu-central-1.amazonaws.com" --region "eu-central-1"
 ```
 
 ## ECS
@@ -103,18 +111,16 @@ https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-str
 
 # Etc
 
-...
-
+...  
 https://stackoverflow.com/questions/48006598/how-fast-can-ecs-fargate-boot-a-container?rq=1
 
 --
 
-ECS workshop
-
-https://ecsworkshop.com/
-https://github.com/brentley/ecsdemo-frontend
-https://github.com/brentley/ecsdemo-nodejs
-https://github.com/brentley/ecsdemo-crystal
+ECS workshop  
+https://ecsworkshop.com/  
+https://github.com/brentley/ecsdemo-frontend  
+https://github.com/brentley/ecsdemo-nodejs  
+https://github.com/brentley/ecsdemo-crystal  
 https://github.com/brentley/container-demo
 
 --
@@ -123,5 +129,14 @@ https://aws.amazon.com/premiumsupport/knowledge-center/multiple-values-list-para
 
 https://aws.amazon.com/blogs/compute/task-networking-in-aws-fargate/
 
-CodePipeline + Secrets Manager
+CodePipeline + Secrets Manager  
 https://medium.com/@eoins/securing-github-tokens-in-a-serverless-codepipeline-dc3a24ddc356
+
+CloudFormation dynamic references (e.g. Secrets)  
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html
+
+CloudFormation code pipeline + GitHub source  
+https://docs.aws.amazon.com/code-samples/latest/catalog/cloudformation-codepipeline-template-codepipeline-github-events-yaml.yml.html
+
+Webhook for GitHub  
+https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-webhooks-create.html

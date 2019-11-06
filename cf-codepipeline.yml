@@ -1,0 +1,224 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Cloudformation test for node-server demo app codepipeline"
+
+Parameters:
+  CodePipelineRole:
+    Type: String
+
+Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: node-server/codebuild-test-cf
+
+  DockerBuildProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn: Repository
+    Properties:
+      Name: node-server-codebuild-test-cf
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      SourceVersion: master
+      # SericeRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codeBuildRole"
+      ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
+
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        # Ubuntu image
+        Image: aws/codebuild/standard:2.0-1.13.0
+        # privileged mode is required for building docker image
+        PrivilegedMode: true
+        EnvironmentVariables:
+          -
+            Name: DOCKER_IMAGE_REPO_ARN
+            Type: PLAINTEXT
+            Value: !Sub
+              - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
+              - { RepositoryName: !Ref Repository }
+
+
+  CodePipelineArtifactStoreBucket:
+    Type: 'AWS::S3::Bucket'
+  CodePipelineArtifactStoreBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref CodePipelineArtifactStoreBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: DenyUnEncryptedObjectUploads
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:PutObject'
+            Resource: !Join
+              - ''
+              - - !GetAtt
+                  - CodePipelineArtifactStoreBucket
+                  - Arn
+                - /*
+            Condition:
+              StringNotEquals:
+                's3:x-amz-server-side-encryption': 'aws:kms'
+          - Sid: DenyInsecureConnections
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: !Join
+              - ''
+              - - !GetAtt
+                  - CodePipelineArtifactStoreBucket
+                  - Arn
+                - /*
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
+  PipelineWebhook:
+    Type: 'AWS::CodePipeline::Webhook'
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        # SecretToken: 210841621240082451323192054430426788446332695914332152869721183331433167362571732187170791249191007
+        SecretToken: nodeservercodebuildtest--Source--bizmfargatenodeserver--173080486
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: 'refs/heads/master'
+      TargetPipeline: !Ref CodePipeline
+      TargetAction: Source
+      Name: PipelineWebhook
+      TargetPipelineVersion: !GetAtt
+        - CodePipeline
+        - Version
+      RegisterWithThirdParty: true
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    DependsOn:
+      - DockerBuildProject
+      - CodePipelineArtifactStoreBucket
+      - CodePipelineArtifactStoreBucketPolicy
+    Properties:
+      Name: node-server-codebuild-test
+      # RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/${CodePipelineRole}"
+      # RoleArn: arn:aws:iam::115162817961:role/service-role/AWSCodePipelineServiceRole-eu-central-1-ecs-demo
+      RoleArn: !GetAtt
+        - CodePipelineServiceRole
+        - Arn
+      # RoleArn: !Join
+      #   - ''
+      #   - - "arn:aws:iam::"
+      #     - !Ref "AWS::AccountId"
+      #     - ":role/service-role/"
+      #     - !Ref CodePipelineRole
+      # ArtifactStore:
+      #   Type: S3
+      #   Location: !Ref CodePipelineArtifactStoreBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                Owner: bizm
+                Repo: fargate-node-server
+                PollForSourceChanges: false
+                Branch: master
+                OAuthToken: "{{resolve:secretsmanager:GitHubAccessToken:SecretString:GitHubAccessToken}}"
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: DockerBuild
+              InputArtifacts:
+                - Name: SourceOutput
+              # OutputArtifacts:
+              #  -
+              #    Name: BuildOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: node-server-codebuild-test-cf
+                PrimarySource: SourceOutput
+              RunOrder: 1
+  CodePipelineServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: AWS-CodePipeline-Service-3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'codecommit:CancelUploadArchive'
+                  - 'codecommit:GetBranch'
+                  - 'codecommit:GetCommit'
+                  - 'codecommit:GetUploadArchiveStatus'
+                  - 'codecommit:UploadArchive'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'codedeploy:CreateDeployment'
+                  - 'codedeploy:GetApplicationRevision'
+                  - 'codedeploy:GetDeployment'
+                  - 'codedeploy:GetDeploymentConfig'
+                  - 'codedeploy:RegisterApplicationRevision'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'codebuild:BatchGetBuilds'
+                  - 'codebuild:StartBuild'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'devicefarm:ListProjects'
+                  - 'devicefarm:ListDevicePools'
+                  - 'devicefarm:GetRun'
+                  - 'devicefarm:GetUpload'
+                  - 'devicefarm:CreateUpload'
+                  - 'devicefarm:ScheduleRun'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'lambda:InvokeFunction'
+                  - 'lambda:ListFunctions'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'iam:PassRole'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'elasticbeanstalk:*'
+                  - 'ec2:*'
+                  - 'elasticloadbalancing:*'
+                  - 'autoscaling:*'
+                  - 'cloudwatch:*'
+                  - 's3:*'
+                  - 'sns:*'
+                  - 'cloudformation:*'
+                  - 'rds:*'
+                  - 'sqs:*'
+                  - 'ecs:*'
+                Resource: '*'

@@ -30,7 +30,9 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        # Ubuntu image
         Image: aws/codebuild/standard:2.0-1.13.0
+        # privileged mode is required for building docker image
         PrivilegedMode: true
         EnvironmentVariables:
           -
@@ -38,6 +40,4 @@ Resources:
             Type: PLAINTEXT
             Value: !Sub
               - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
-              # - "${RepositoryArn}:latest"
               - { RepositoryName: !Ref Repository }
-              #- { RepositoryArn: !GetAtt Repository.Arn }
