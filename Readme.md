@@ -46,7 +46,7 @@ aws cloudformation validate-template --template-body file://cf-ecs.yml
 
 # create new stack
 aws cloudformation create-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
-aws cloudformation create-stack --stack-name node-server-pipeline --template-body file://cf-codepipeline.yml --parameters file://cf-codepipeline-parameters.json --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name node-server-pipeline --template-body file://cf-codepipeline.yml --capabilities CAPABILITY_IAM
 
 # update existing stack
 aws cloudformation update-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json

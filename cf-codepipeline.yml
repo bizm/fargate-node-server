@@ -2,10 +2,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Cloudformation test for node-server demo app codepipeline"
 
-Parameters:
-  CodePipelineRole:
-    Type: String
-
 Resources:
   Repository:
     Type: AWS::ECR::Repository
@@ -23,8 +19,11 @@ Resources:
         Type: CODEPIPELINE
         BuildSpec: buildspec.yml
       SourceVersion: master
-      # SericeRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codeBuildRole"
-      ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
+      # SericeRole: !Sub arn:aws:iam::${AWS::AccountId}:role/service-role/codeBuildRole
+      # ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
+      ServiceRole: !GetAtt
+        - CodeBuildServiceRole
+        - Arn
 
       Environment:
         Type: LINUX_CONTAINER
@@ -41,10 +40,35 @@ Resources:
             Value: !Sub
               - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
               - { RepositoryName: !Ref Repository }
-
+  CodeBuildServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: NodeServer-CodeBuild-Service
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:*'
+                  - 'ecr:*'
+                  - 'logs:*'
+                Resource: '*'
 
   CodePipelineArtifactStoreBucket:
     Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: node-server-codepipeline-bucket
+
   CodePipelineArtifactStoreBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
@@ -114,9 +138,9 @@ Resources:
       #     - !Ref "AWS::AccountId"
       #     - ":role/service-role/"
       #     - !Ref CodePipelineRole
-      # ArtifactStore:
-      #   Type: S3
-      #   Location: !Ref CodePipelineArtifactStoreBucket
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStoreBucket
       Stages:
         - Name: Source
           Actions:
@@ -149,7 +173,7 @@ Resources:
                 Version: 1
                 Provider: CodeBuild
               Configuration:
-                ProjectName: node-server-codebuild-test-cf
+                ProjectName: !Ref DockerBuildProject
                 PrimarySource: SourceOutput
               RunOrder: 1
   CodePipelineServiceRole:
