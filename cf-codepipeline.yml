@@ -190,7 +190,7 @@ Resources:
                   - CodePipelineServiceRole
                   - Arn
                 StackName: node-server-stack
-                TemplateConfiguration: "SourceOutput::cf-ecs-parameters.json"
+                TemplateConfiguration: "SourceOutput::cf-ecs-config.json"
                 TemplatePath: "SourceOutput::cf-ecs.yml"
               RunOrder: 1
   CodePipelineServiceRole:
