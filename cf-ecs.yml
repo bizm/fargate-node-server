@@ -116,87 +116,87 @@ Resources:
       ToPort: !Ref Port
       CidrIp: 0.0.0.0/0
 
-  Repository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: node-server/codebuild-test-cf
-
-  DockerBuildProject:
-    Type: AWS::CodeBuild::Project
-    DependsOn: Repository
-    Properties:
-      Name: node-server-codebuild-test-cf
-      Artifacts:
-        Type: CODEPIPELINE
-      Source:
-        Type: CODEPIPELINE
-        BuildSpec: buildspec.yml
-      SourceVersion: master
-      ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
-
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
-        # Ubuntu image
-        Image: aws/codebuild/standard:2.0-1.13.0
-        # privileged mode is required for building docker image
-        PrivilegedMode: true
-        EnvironmentVariables:
-          -
-            Name: DOCKER_IMAGE_REPO_ARN
-            Type: PLAINTEXT
-            Value: !Sub
-              - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
-              - { RepositoryName: !Ref Repository }
-
-
-  CodePipeline:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: node-server-pipeline
-      RoleArn: !Sub
-        - "arn:aws:iam:${AWS::AccountId}:role/service-role/${CodePipelineRole}"
-      # RoleArn: !Join
-      #   - ''
-      #   - - "arn:aws:iam::"
-      #     - !Ref "AWS::AccountId"
-      #     - ":role/service-role/"
-      #     - !Ref CodePipelineRole
-      Stages:
-        -
-          Name: Source
-          Actions:
-            -
-              Name: SourceAction
-              ActionTypeId:
-                Category: Source
-                Owner: ThirdParty
-                Version: 1
-                Provider: GitHub
-              OutputArtifacts:
-                -
-                  Name: SourceOutput
-              Configuration:
-                Owner: bizm
-                Repo: fargate-node-server
-                PollForSourceChanges: false
-                Branch: master
-                OAuthToken: "{{resolve:secretsmanager:CICD:SecretString:GitHubAccessToken}}"
-        -
-          Name: Build
-          Actions:
-            -
-              Name: DockerBuild
-              InputArtifacts:
-                -
-                  Name: SourceOutput
-              OutputArtifacts:
-                -
-                  Name: BuildOutput
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Version: 1
-                Provider: CodeBuild
-              Configuration:
+  # Repository:
+  #   Type: AWS::ECR::Repository
+  #   Properties:
+  #     RepositoryName: node-server/codebuild-test-cf
+  #
+  # DockerBuildProject:
+  #   Type: AWS::CodeBuild::Project
+  #   DependsOn: Repository
+  #   Properties:
+  #     Name: node-server-codebuild-test-cf
+  #     Artifacts:
+  #       Type: CODEPIPELINE
+  #     Source:
+  #       Type: CODEPIPELINE
+  #       BuildSpec: buildspec.yml
+  #     SourceVersion: master
+  #     ServiceRole: arn:aws:iam::115162817961:role/service-role/codeBuildRole
+  #
+  #     Environment:
+  #       Type: LINUX_CONTAINER
+  #       ComputeType: BUILD_GENERAL1_SMALL
+  #       # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+  #       # Ubuntu image
+  #       Image: aws/codebuild/standard:2.0-1.13.0
+  #       # privileged mode is required for building docker image
+  #       PrivilegedMode: true
+  #       EnvironmentVariables:
+  #         -
+  #           Name: DOCKER_IMAGE_REPO_ARN
+  #           Type: PLAINTEXT
+  #           Value: !Sub
+  #             - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
+  #             - { RepositoryName: !Ref Repository }
+  #
+  #
+  # CodePipeline:
+  #   Type: AWS::CodePipeline::Pipeline
+  #   Properties:
+  #     Name: node-server-pipeline
+  #     RoleArn: !Sub
+  #       - "arn:aws:iam:${AWS::AccountId}:role/service-role/${CodePipelineRole}"
+  #     # RoleArn: !Join
+  #     #   - ''
+  #     #   - - "arn:aws:iam::"
+  #     #     - !Ref "AWS::AccountId"
+  #     #     - ":role/service-role/"
+  #     #     - !Ref CodePipelineRole
+  #     Stages:
+  #       -
+  #         Name: Source
+  #         Actions:
+  #           -
+  #             Name: SourceAction
+  #             ActionTypeId:
+  #               Category: Source
+  #               Owner: ThirdParty
+  #               Version: 1
+  #               Provider: GitHub
+  #             OutputArtifacts:
+  #               -
+  #                 Name: SourceOutput
+  #             Configuration:
+  #               Owner: bizm
+  #               Repo: fargate-node-server
+  #               PollForSourceChanges: false
+  #               Branch: master
+  #               OAuthToken: "{{resolve:secretsmanager:CICD:SecretString:GitHubAccessToken}}"
+  #       -
+  #         Name: Build
+  #         Actions:
+  #           -
+  #             Name: DockerBuild
+  #             InputArtifacts:
+  #               -
+  #                 Name: SourceOutput
+  #             OutputArtifacts:
+  #               -
+  #                 Name: BuildOutput
+  #             ActionTypeId:
+  #               Category: Build
+  #               Owner: AWS
+  #               Version: 1
+  #               Provider: CodeBuild
+  #             Configuration:

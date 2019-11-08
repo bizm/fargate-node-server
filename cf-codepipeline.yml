@@ -173,6 +173,26 @@ Resources:
                 ProjectName: !Ref DockerBuildProject
                 PrimarySource: SourceOutput
               RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              InputArtifacts:
+                - Name: SourceOutput
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                # Capabilities: CAPABILITY_IAM
+                RoleArn: !GetAtt
+                  - CodePipelineServiceRole
+                  - Arn
+                StackName: node-server-stack
+                TemplateConfiguration: "SourceOutput::cf-ecs-parameters.json"
+                TemplatePath: "SourceOutput::cf-ecs.yml"
+              RunOrder: 1
   CodePipelineServiceRole:
     Type: 'AWS::IAM::Role'
     Properties:
