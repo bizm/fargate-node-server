@@ -1,6 +1,6 @@
 {
   "Parameters": {
-    "Vpc": "",
+    "Vpc": "vpc-440e042f",
     "TaskDefinitionName": "node-server",
     "TaskDefinitionRevision": "7",
     "Subnets": "subnet-4291ad0f, subnet-2a01f340, subnet-b26a42cf",
