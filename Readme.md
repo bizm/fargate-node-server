@@ -140,3 +140,6 @@ https://docs.aws.amazon.com/code-samples/latest/catalog/cloudformation-codepipel
 
 Webhook for GitHub  
 https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-webhooks-create.html
+
+Simples implementation of HTTP server in Java  
+https://stackoverflow.com/questions/3732109/simple-http-server-in-java-using-only-java-se-api

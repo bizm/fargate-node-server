@@ -76,8 +76,7 @@ Resources:
     Properties:
       ServiceName: node-server-service
       Cluster: !Ref Cluster
-      TaskDefinition: !Sub
-        - "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition:${TaskDefinitionName}:${TaskDefinitionRevision}"
+      TaskDefinition: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${TaskDefinitionName}:${TaskDefinitionRevision}"
       # TaskDefinition: !Join
       #   - ''
       #   - - 'arn:aws:ecs:'
