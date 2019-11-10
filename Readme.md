@@ -146,3 +146,5 @@ Simples implementation of HTTP server in Java
 https://stackoverflow.com/questions/3732109/simple-http-server-in-java-using-only-java-se-api
 
 AWS CLI in PowerShell did work until `Install-Package -Name AWSPowerShell`  
+
+https://aws.amazon.com/blogs/devops/build-a-continuous-delivery-pipeline-for-your-container-images-with-amazon-ecr-as-source/

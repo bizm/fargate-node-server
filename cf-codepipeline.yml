@@ -186,7 +186,7 @@ Resources:
                 Provider: CloudFormation
               Configuration:
                 ActionMode: CREATE_UPDATE
-                # Capabilities: CAPABILITY_IAM
+                Capabilities: CAPABILITY_IAM
                 RoleArn: !GetAtt
                   - CodePipelineServiceRole
                   - Arn
