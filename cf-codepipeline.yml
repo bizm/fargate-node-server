@@ -44,6 +44,7 @@ Resources:
   CodeBuildServiceRole:
     Type: 'AWS::IAM::Role'
     Properties:
+      RoleName: session-int-codebuild-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -197,6 +198,7 @@ Resources:
   CodePipelineServiceRole:
     Type: 'AWS::IAM::Role'
     Properties:
+      RoleName: session-int-codepipeline-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:

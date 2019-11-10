@@ -46,14 +46,15 @@ aws cloudformation list-stacks
 aws cloudformation validate-template --template-body file://cf-ecs.yml
 
 # create new stack
-aws cloudformation create-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
-aws cloudformation create-stack --stack-name node-server-pipeline --template-body file://cf-codepipeline.yml --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name session-int --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+aws cloudformation create-stack --stack-name session-int-pipeline --template-body file://cf-codepipeline.yml --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
 # update existing stack
-aws cloudformation update-stack --stack-name node-server --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json
+aws cloudformation update-stack --stack-name session-int --template-body file://cf-ecs.yml --parameters file://cf-ecs-parameters.json --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+aws cloudformation update-stack --stack-name session-int-pipeline --template-body file://cf-codepipeline.yml --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
 # describe stack events
-aws cloudformation describe-stack-events --stack-name node-server --max-items <max-number-of-events>
+aws cloudformation describe-stack-events --stack-name session-int --max-items <max-number-of-events>
 
 # delete stack
 aws cloudformation delete-stack --stack-name node-server

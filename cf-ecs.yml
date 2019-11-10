@@ -83,18 +83,31 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: session-int-task-role
       AssumeRolePolicyDocument:
-        Version: 2012-10-17
+        # Version: 2012-10-17
+        Version: 2008-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service:
-                - ecs.amazonaws.com
+                - ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: session-int-log-group
+
+  TaskLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref TaskLogGroup
+      LogStreamName: session-int-log-stream
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -104,22 +117,24 @@ Resources:
       Memory: 1024
       NetworkMode: awsvpc
       ContainerDefinitions:
-        Name: session-int-app
-        Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/test/session-int:latest"
-        Cpu: 256
-        Memory: 1024
-        PortMappings:
-          - ContainerPort: !Ref Port
-            HostPort: !Ref Port
-            Protocol: tcp
-        LogConfiguration:
-          LogDriver: awslogs
-          Options:
-            awslogs-group: /test/session-int
-            awslogs-region: ${AWS::Region}
-            awslogs-stream-prefix: test
+        - Name: session-int-app
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/test/session-int:latest"
+          Cpu: 256
+          Memory: 1024
+          PortMappings:
+            - ContainerPort: !Ref Port
+              HostPort: !Ref Port
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TaskLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: !Ref TaskLogStream
       RequiresCompatibilities:
         - FARGATE
+      TaskRoleArn: !Ref TaskRole
+      ExecutionRoleArn: !Ref TaskRole
 
   Service:
     Type: AWS::ECS::Service
@@ -153,7 +168,7 @@ Resources:
           Subnets: !Ref Subnets
       # not allowed to set load balancer after service is created
       LoadBalancers:
-        - ContainerName: node
+        - ContainerName: session-int-app
           ContainerPort: !Ref Port
           TargetGroupArn: !Ref TargetGroup
 
