@@ -1,14 +1,14 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: "Cloudformation test for node-server demo app"
+Description: "Cloudformation test for session integration app"
 
 Parameters:
   Vpc:
     Type: AWS::EC2::VPC::Id
-  TaskDefinitionName:
-    Type: String
-  TaskDefinitionRevision:
-    Type: String
+  # TaskDefinitionName:
+  #   Type: String
+  # TaskDefinitionRevision:
+  #   Type: String
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
   # SecurityGroup:
@@ -25,7 +25,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: ...
-      GroupName: node-server-secruity-group
+      GroupName: session-int-secruity-group
       VpcId: !Ref Vpc
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -52,7 +52,7 @@ Resources:
       Protocol: HTTP
       Port: !Ref Port
       TargetType: ip
-      Name: node-server-alb
+      Name: session-int-alb
       HealthCheckIntervalSeconds: 6
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
@@ -75,26 +75,60 @@ Resources:
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: node-server-cluster
+      ClusterName: session-int-cluster
       Tags:
         - Key: Name
-          Value: Node server test cluster
+          Value: Session integration cluster
 
-  # task definition is created separately via 'aws ecs'
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
+      Family: session-int
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
       ContainerDefinitions:
         Name: session-int-app
-        Image: 
+        Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/test/session-int:latest"
+        Cpu: 256
+        Memory: 1024
+        PortMappings:
+          - ContainerPort: !Ref Port
+            HostPort: !Ref Port
+            Protocol: tcp
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: /test/session-int
+            awslogs-region: ${AWS::Region}
+            awslogs-stream-prefix: test
+      RequiresCompatibilities:
+        - FARGATE
 
   Service:
     Type: AWS::ECS::Service
     DependsOn: ListenerHTTP
     Properties:
-      ServiceName: node-server-service
+      ServiceName: session-int-service
       Cluster: !Ref Cluster
-      TaskDefinition: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${TaskDefinitionName}:${TaskDefinitionRevision}"
+      TaskDefinition: !Ref TaskDefinition
+      # TaskDefinition: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${TaskDefinitionName}:${TaskDefinitionRevision}"
       # TaskDefinition: !Join
       #   - ''
       #   - - 'arn:aws:ecs:'
