@@ -144,3 +144,5 @@ https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-webhooks-cre
 
 Simples implementation of HTTP server in Java  
 https://stackoverflow.com/questions/3732109/simple-http-server-in-java-using-only-java-se-api
+
+AWS CLI in PowerShell did work until `Install-Package -Name AWSPowerShell`  
