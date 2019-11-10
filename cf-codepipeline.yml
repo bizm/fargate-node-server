@@ -1,18 +1,19 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: "Cloudformation test for node-server demo app codepipeline"
+Description: "Cloudformation test for session integration app codepipeline"
 
 Resources:
   Repository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: node-server/codebuild-test-cf
+      # RepositoryName: node-server/codebuild-test-cf
+      RepositoryName: test/session-int
 
   DockerBuildProject:
     Type: AWS::CodeBuild::Project
     DependsOn: Repository
     Properties:
-      Name: node-server-codebuild-test-cf
+      Name: session-int-codebuild
       Artifacts:
         Type: CODEPIPELINE
       Source:
@@ -67,7 +68,7 @@ Resources:
   CodePipelineArtifactStoreBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: node-server-codepipeline-bucket
+      BucketName: session-int-codepipeline-bucket
 
   CodePipelineArtifactStoreBucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -123,7 +124,7 @@ Resources:
       - CodePipelineArtifactStoreBucket
       - CodePipelineArtifactStoreBucketPolicy
     Properties:
-      Name: node-server-codebuild-test
+      Name: session-int-codepipeline
       # RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/${CodePipelineRole}"
       # RoleArn: arn:aws:iam::115162817961:role/service-role/AWSCodePipelineServiceRole-eu-central-1-ecs-demo
       RoleArn: !GetAtt
@@ -189,9 +190,9 @@ Resources:
                 RoleArn: !GetAtt
                   - CodePipelineServiceRole
                   - Arn
-                StackName: node-server-stack
-                TemplateConfiguration: "SourceOutput::cf-ecs-config.json"
+                StackName: session-int-stack
                 TemplatePath: "SourceOutput::cf-ecs.yml"
+                TemplateConfiguration: "SourceOutput::cf-ecs-config.json"
               RunOrder: 1
   CodePipelineServiceRole:
     Type: 'AWS::IAM::Role'

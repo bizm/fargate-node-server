@@ -2,7 +2,7 @@
 version: 0.2
 env:
   variables:
-    DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest"
+    DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.$AWS_REGION.amazonaws.com/test/session-int:latest"
 phases:
   install:
     runtime-versions:
@@ -19,15 +19,15 @@ phases:
   build:
     commands:
       - "echo Build started on `date`"
+      - "echo Building jar package..."
+      - "mvn clean compile package"
       - "echo Building the Docker image..."
-      - "docker build -t test/node-server ."
-      - "docker tag test/node-server $DOCKER_IMAGE_REPO_ARN"
+      - "docker build -t test/session-int ."
+      - "docker tag test/session-int $DOCKER_IMAGE_REPO_ARN"
   post_build:
     commands:
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
       - echo $AWS_ACCOUNT_ID
       - echo $AWS_REGION
-      # - "docker push bizm/node-server:latest"
-      # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/test/node-server:latest
       - "docker push $DOCKER_IMAGE_REPO_ARN"

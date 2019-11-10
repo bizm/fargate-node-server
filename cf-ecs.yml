@@ -11,13 +11,13 @@ Parameters:
     Type: String
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup::Id
+  # SecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup::Id
   Port:
     Type: Number
     Default: 8080
-  CodePipelineRole:
-    Type: String
+  # CodePipelineRole:
+  #   Type: String
 
 Resources:
 
@@ -81,6 +81,12 @@ Resources:
           Value: Node server test cluster
 
   # task definition is created separately via 'aws ecs'
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        Name: session-int-app
+        Image: 
 
   Service:
     Type: AWS::ECS::Service

@@ -14,7 +14,8 @@ CloudFormation parameters | cf-ecs-parameters.json
 # Docker image
 
 ```shell
-docker build --rm -t bizm/node-server .
+mvn clean compile package
+docker build --rm -t bizm/teosto-session .
 docker run -it --rm -p 127.0.0.1:8080:8080 bizm/node-server:latest
 docker push bizm/node-server:latest
 ```

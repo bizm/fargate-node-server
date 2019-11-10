@@ -1,5 +1,4 @@
-FROM node:13-alpine
-COPY server.js package.json package-lock.json ./
-RUN npm i
+FROM openjdk:8-alpine
+COPY target/teosto-session-int-0.0.1-jar-with-dependencies.jar ./
 EXPOSE 8080
-CMD node server.js
+CMD java -jar teosto-session-int-0.0.1-jar-with-dependencies.jar
