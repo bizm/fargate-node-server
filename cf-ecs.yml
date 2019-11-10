@@ -21,6 +21,18 @@ Parameters:
 
 Resources:
 
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ...
+      GroupName: node-server-secruity-group
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref Port
+          ToPort: !Ref Port
+          CidrIp: 0.0.0.0/0
+
   PublicLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -105,15 +117,15 @@ Resources:
           ContainerPort: !Ref Port
           TargetGroupArn: !Ref TargetGroup
 
-  EcsSecurityGroupIngressFromPublic:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      Description: Ingress from public to node-server
-      GroupId: !Ref SecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref Port
-      ToPort: !Ref Port
-      CidrIp: 0.0.0.0/0
+  # EcsSecurityGroupIngressFromPublic:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     Description: Ingress from public to node-server
+  #     GroupId: !Ref SecurityGroup
+  #     IpProtocol: tcp
+  #     FromPort: !Ref Port
+  #     ToPort: !Ref Port
+  #     CidrIp: 0.0.0.0/0
 
   # Repository:
   #   Type: AWS::ECR::Repository
