@@ -1,0 +1,147 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Cloudformation test"
+
+Resources:
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: codebuild-test
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec-test.yml
+      # SourceVersion: master
+      ServiceRole: arn:aws:iam::115162817961:role/session-int-codebuild-role
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        # Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        # Ubuntu image
+        Image: aws/codebuild/standard:2.0-1.13.0
+        # privileged mode is required for building docker image
+        PrivilegedMode: false
+        # EnvironmentVariables:
+        #   -
+        #     Name: DOCKER_IMAGE_REPO_ARN
+        #     Type: PLAINTEXT
+        #     Value: !Sub
+        #       - "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest"
+        #       - { RepositoryName: !Ref Repository }
+
+  LogProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: codelog-test
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          env:
+            variables:
+              PIPELINE_PARAMETER: "none"
+          phases:
+            install:
+              runtime-versions:
+                nodejs: 8
+            build:
+              commands:
+                - echo $PIPELINE_PARAMETER
+      ServiceRole: arn:aws:iam::115162817961:role/session-int-codebuild-role
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:2.0-1.13.0
+        PrivilegedMode: false
+
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: codepipeline-test
+      RoleArn: arn:aws:iam::115162817961:role/session-int-codepipeline-role
+      ArtifactStore:
+        Type: S3
+        Location: session-int-test-pipeline-artifacts
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: S3
+              OutputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                # Owner: bizm
+                # Repo: fargate-node-server
+                # PollForSourceChanges: false
+                # Branch: master
+                # OAuthToken: "{{resolve:secretsmanager:GitHubAccessToken:SecretString:GitHubAccessToken}}"
+                # S3Bucket: arn:aws:s3:::bizm.001
+                S3Bucket: bizm-test-pipeline-source
+                S3ObjectKey: Source.zip
+                PollForSourceChanges: "false"
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: JsonBuild
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+               - Name: JsonBuildArtifact
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref BuildProject
+                PrimarySource: SourceArtifact
+              RunOrder: 1
+        # - Name: Log
+        #   Actions:
+        #     - Name: JsonLog
+        #       InputArtifacts:
+        #         - Name: JsonBuildArtifact
+        #       ActionTypeId:
+        #         Category: Build
+        #         Owner: AWS
+        #         Version: 1
+        #         Provider: CodeBuild
+        #       Configuration:
+        #         ProjectName: !Ref LogProject
+        #         PrimarySource: JsonBuildArtifact
+        #         EnvironmentVariables:
+        #           - Name: PIPELINE_PARAMETER
+        #             Type: PLAINTEXT
+        #             Value: { "Fn::GetParam" : [ "JsonBuildArtifact", "result.json", "Token" ] }
+        #       RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              InputArtifacts:
+                - Name: SourceArtifact
+                - Name: JsonBuildArtifact
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                # Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
+                RoleArn: arn:aws:iam::115162817961:role/session-int-test-pipeline-role
+                StackName: test-s3
+                TemplatePath: "SourceArtifact::cf-test-s3.yml"
+                # TemplateConfiguration: "SourceOutput::aws/ecs-config.json"
+                # ParameterOverrides: !Sub '{ "Env": "${Env}", "PipelineStackName": "${AWS::StackName}" }'
+                ParameterOverrides: |
+                  {
+                    "PipelineParameter" : { "Fn::GetParam" : ["JsonBuildArtifact", "result.json", "Token"] }
+                  }
+              RunOrder: 1

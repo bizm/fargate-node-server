@@ -1,0 +1,17 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Test S3"
+
+Parameters:
+  PipelineParameter:
+    Type: String
+
+Resources:
+  Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: bizm-test-s3
+      Tags:
+        - Key: PIPELINE_PARAMETER
+          Value:
+            Ref: PipelineParameter

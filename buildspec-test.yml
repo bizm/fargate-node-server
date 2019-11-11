@@ -1,0 +1,39 @@
+---
+version: 0.2
+# env:
+#   variables:
+#     DOCKER_IMAGE: "${AWS_ACCOUNT_ID}.dkr.ecr.$AWS_REGION.amazonaws.com/test/session-int:latest"
+phases:
+  install:
+    runtime-versions:
+  #     docker: 18
+      nodejs: 8
+  #   commands:
+  #     # initialize Docker daemon
+  #     - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --storage-driver=overlay&
+  #     - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  # pre_build:
+  #   commands:
+  #     - echo Logging in to Amazon ECR...
+  #     - $(aws ecr get-login --no-include-email --region $AWS_REGION)
+  #     - echo $DOCKER_IMAGE_REPO_ARN
+  build:
+    commands:
+      # - "echo Build started on `date`"
+      # - "echo Building jar package..."
+      # - "mvn clean compile package"
+      # - "echo Building the Docker image..."
+      # - "docker build -t test/session-int ."
+      # - "docker tag test/session-int $DOCKER_IMAGE_REPO_ARN"
+      - "echo '{ \"Token\" : \"5da738dcb8651d863e6c251be7233a46\" }' > result.json"
+  # post_build:
+  #   commands:
+  #     - "echo Build completed on `date`"
+  #     - "echo Pushing the Docker image..."
+  #     - echo $AWS_ACCOUNT_ID
+  #     - echo $AWS_REGION
+  #     - "docker push $DOCKER_IMAGE_REPO_ARN"
+artifacts:
+  files:
+    - result.json
+  name: json-artifact

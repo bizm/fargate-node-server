@@ -151,3 +151,8 @@ AWS CLI in PowerShell did work until `Install-Package -Name AWSPowerShell`
 https://aws.amazon.com/blogs/devops/build-a-continuous-delivery-pipeline-for-your-container-images-with-amazon-ecr-as-source/  
 https://itnext.io/how-to-access-git-metadata-in-codebuild-when-using-codepipeline-codecommit-ceacf2c5c1dc  
 https://moduscreate.com/blog/track-git-branches-aws-codepipeline/
+
+Read version from pom.xml
+```shell
+grep -oPm1 "(?<=<version>)[^<]+" pom.xml
+```
