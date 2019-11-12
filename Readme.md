@@ -156,3 +156,11 @@ Read version from pom.xml
 ```shell
 grep -oPm1 "(?<=<version>)[^<]+" pom.xml
 ```
+
+Get ECR URI from its ARN  
+```shell
+jq -r '.repositories[] | select(.repositoryArn=="arn:aws:ecr:eu-central-1:115162817961:repository/test/session-int-test") | .repositoryUri'
+aws ecr describe-repositories | jq -r '.repositories[] | select(.repositoryArn=="arn:aws:ecr:eu-central-1:115162817961:repository/test/session-int-test") | .repositoryUri'
+aws ecr describe-repositories | jq -r '.repositories[] | select(.repositoryArn=="$REPO_ARN") | .repositoryUri'
+aws ecr describe-repositories | jq -r ".repositories[] | select(.repositoryArn==\"$REPO_ARN\") | .repositoryUri"
+```
