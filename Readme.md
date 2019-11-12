@@ -164,3 +164,8 @@ aws ecr describe-repositories | jq -r '.repositories[] | select(.repositoryArn==
 aws ecr describe-repositories | jq -r '.repositories[] | select(.repositoryArn=="$REPO_ARN") | .repositoryUri'
 aws ecr describe-repositories | jq -r ".repositories[] | select(.repositoryArn==\"$REPO_ARN\") | .repositoryUri"
 ```
+
+Test version number in linux command line
+```shell
+if ( echo "1.0" | grep -qx '[0-9\.]\{1,\}' ) ; then echo 1; fi
+```
